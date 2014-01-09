@@ -6,7 +6,8 @@ shinyUI(pageWithSidebar(
   
   sidebarPanel(
     textInput("user", "User ID", value=""),
-    selectInput("room", "Chat Room:", choices=c("Pick One..."), selected="Pick One...")
+    selectInput("room", "Chat Room:", choices=c("Pick One..."), selected="Pick One..."),
+    helpText(HTML("Source code available <a href =\"https://github.com/trestletech/ShinyChat\">on GitHub</a>."))
   ),
   
   mainPanel(

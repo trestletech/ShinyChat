@@ -1,6 +1,6 @@
 library(shiny)
 
-chat <- reactiveValues(`Pick One...` = NULL, `Sample Room` = NULL)
+chat <- reactiveValues(`Pick One...` = NULL, `Water Cooler` = NULL)
 
 shinyServer(function(input, output, session) {
   observe({
