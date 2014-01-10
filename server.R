@@ -8,9 +8,14 @@ shinyServer(function(input, output, session) {
       updateTextInput(session, "user", 
                       value=paste0("User", round(runif(1, 10000, 99999))))  
     }
+  })
+  
+  observe({
+    isolate({
+      updateSelectInput(session, "room", 
+                        choices=names(reactiveValuesToList(chat)))
+    })
     
-    updateSelectInput(session, "room", selected=input$room,
-                      choices=names(reactiveValuesToList(chat)))
   })
   
   observe({
@@ -20,7 +25,7 @@ shinyServer(function(input, output, session) {
         pre <- "\n"
       }
       chat[[input$room]] <<- c(chat[[input$room]], paste0(pre, input$user, ": ", 
-                                                    input$entry))
+                                                          input$entry))
     })
     input$send
     updateTextInput(session, "entry", value="")
