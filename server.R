@@ -1,4 +1,5 @@
 library(shiny)
+library(stringr)
 
 vars <- reactiveValues(chat=NULL, users=NULL)
 
@@ -16,7 +17,7 @@ shinyServer(function(input, output, session) {
     isolate({
       vars$users <- vars$users[vars$users != sessionVars$username]
       vars$chat <- c(vars$chat, paste0(linePrefix(), "<span class=\"user-exit\">\"", 
-                                        sessionVars$username,
+                                        sanitize(sessionVars$username),
                                         "\" left the room.</span>"))
     })
   })
@@ -27,7 +28,7 @@ shinyServer(function(input, output, session) {
       sessionVars$username <- paste0("User", round(runif(1, 10000, 99999)))
       isolate({
         vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"user-enter\">\"", 
-                                         sessionVars$username,
+                                         sanitize(sessionVars$username),
                                          "\" entered the room.</span>"))
       })
     } else{
@@ -42,11 +43,11 @@ shinyServer(function(input, output, session) {
         vars$users <- vars$users[vars$users != sessionVars$username]
         
         vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"user-change\">\"", 
-                                          sessionVars$username, "\" -> \"", 
-                                          input$user, "\"</span>"))
+                                          sanitize(sessionVars$username), 
+                                          "\" -> \"", sanitize(input$user), "\"</span>"))
         
         # Now update with the new one
-        sessionVars$username <- input$user
+        sessionVars$username <- sanitize(input$user)
       })
     }
     isolate(vars$users <- c(vars$users, sessionVars$username))
@@ -69,8 +70,9 @@ shinyServer(function(input, output, session) {
       return()
     }
     isolate({
-      vars$chat <<- c(vars$chat, paste0(linePrefix(), input$user, ": ", 
-                                                          input$entry))
+      vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"username\">",
+                                        sanitize(input$user),"</span>: ", 
+                                        sanitize(input$entry)))
     })
     updateTextInput(session, "entry", value="")
   })
@@ -79,3 +81,8 @@ shinyServer(function(input, output, session) {
     HTML(vars$chat)
   })
 })
+
+# Replace any HTML tags
+sanitize <- function(string){
+  str_replace_all(string, "[<>]", "")
+}

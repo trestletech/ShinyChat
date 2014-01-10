@@ -16,11 +16,13 @@ shinyUI(
             textInput("entry", ""),
             actionButton("send", "Send")
           )
-
         ),
         sidebarPanel(
           textInput("user", "Your User ID:", value=""),
+          tags$hr(),
+          h5("Connected Users"),
           uiOutput("userList"),
+          tags$hr(),
           helpText(HTML("Source code available <a href =\"https://github.com/trestletech/ShinyChat\">on GitHub</a>."))
         )
       )
