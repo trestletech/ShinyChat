@@ -1,23 +1,29 @@
 library(shiny)
 
-shinyUI(pageWithSidebar(
-  
-  headerPanel(tagList(HTML("ShinyChat"), h4("Hipper than IRC..."))),
-  
-  sidebarPanel(
-    textInput("user", "User ID", value=""),
-    selectInput("room", "Chat Room:", choices=c("Pick One..."), selected="Pick One..."),
-    helpText(HTML("Source code available <a href =\"https://github.com/trestletech/ShinyChat\">on GitHub</a>."))
-  ),
-  
-  mainPanel(
-    conditionalPanel("input.room != 'Pick One...'",
-      textOutput("roomName"),
-      verbatimTextOutput("chat"),
-      fluidRow(
-        textInput("entry", ""),
-        actionButton("send", "Send")
+shinyUI(
+  bootstrapPage(
+    includeCSS("shinychat.css"),
+    div(
+      class = "container-fluid", 
+      div(class = "row-fluid", 
+        headerPanel(tagList(HTML("ShinyChat"), h4("Hipper than IRC...")), "ShinyChat")
+      ),
+      div(
+        class = "row-fluid", 
+        mainPanel(
+          uiOutput("chat"),
+          fluidRow(
+            textInput("entry", ""),
+            actionButton("send", "Send")
+          )
+
+        ),
+        sidebarPanel(
+          textInput("user", "Your User ID:", value=""),
+          uiOutput("userList"),
+          helpText(HTML("Source code available <a href =\"https://github.com/trestletech/ShinyChat\">on GitHub</a>."))
+        )
       )
     )
   )
-))
+)

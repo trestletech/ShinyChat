@@ -1,0 +1,9 @@
+#chat {
+  padding: .5em;
+  border: 1px solid #777;
+}
+
+.user-change, .user-exit, .user-enter {
+  color: #aaa;
+  font-size: .8em;
+}
