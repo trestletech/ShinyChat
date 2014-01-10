@@ -13,6 +13,8 @@ linePrefix <- function(){
 shinyServer(function(input, output, session) {
   sessionVars <- reactiveValues(username = "")
   
+  init <- FALSE
+  
   session$onSessionEnded(function() {
     isolate({
       vars$users <- vars$users[vars$users != sessionVars$username]
@@ -23,7 +25,9 @@ shinyServer(function(input, output, session) {
   })
   
   observe({
-    if (input$user == ""){
+    input$user
+    
+    if (!init){
       # Seed initial username
       sessionVars$username <- paste0("User", round(runif(1, 10000, 99999)))
       isolate({
@@ -31,9 +35,10 @@ shinyServer(function(input, output, session) {
                                          sanitize(sessionVars$username),
                                          "\" entered the room.</span>"))
       })
+      init <<- TRUE
     } else{
       isolate({
-        if (input$user == sessionVars$username){
+        if (input$user == sessionVars$username || input$user == ""){
           # No change. Just return.
           return()
         }

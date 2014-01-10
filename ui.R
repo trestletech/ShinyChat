@@ -11,8 +11,14 @@ shinyUI(
     
     div(
       class = "container-fluid", 
-      div(class = "row-fluid", 
-        headerPanel(tagList(HTML("ShinyChat"), h4("Hipper than IRC...")), "ShinyChat")
+      div(class = "row-fluid",
+          tags$head(tags$title("ShinyChat")),
+          div(class="span6", style="padding: 10px 0px;",
+              h1("ShinyChat"), 
+              h4("Hipper than IRC...")
+          ), div(class="span6", id="play-nice",
+            "IP Addresses are logged... be a decent human being."
+          )
       ),
       div(
         class = "row-fluid", 
