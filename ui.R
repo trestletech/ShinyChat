@@ -39,7 +39,7 @@ shinyUI(
           h5("Connected Users"),
           uiOutput("userList"),
           tags$hr(),
-          helpText(HTML("Source code available <a href =\"https://github.com/trestletech/ShinyChat\">on GitHub</a>."))
+          helpText(HTML("<p>Built using R & <a href = \"http://rstudio.com/shiny/\">Shiny</a>.<p>Source code available <a href =\"https://github.com/trestletech/ShinyChat\">on GitHub</a>."))
         )
       )
     )

@@ -3,6 +3,11 @@ library(stringr)
 
 vars <- reactiveValues(chat=NULL, users=NULL)
 
+if (file.exists("chat.Rds")){
+  # Restore the chat log from a previous session.
+  vars$chat <- readRDS("chat.Rds")
+}
+
 linePrefix <- function(){
   if (is.null(isolate(vars$chat))){
     return("")
@@ -75,14 +80,20 @@ shinyServer(function(input, output, session) {
       return()
     }
     isolate({
-      vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"username\">",
-                                        sanitize(input$user),"</span>: ", 
-                                        sanitize(input$entry)))
+      vars$chat <<- c(vars$chat, 
+                      paste0(linePrefix(), "<span class=\"username\">",
+                             "<abbr title=\"", Sys.time(), "\">", sanitize(input$user),
+                             "</abbr></span>: ", sanitize(input$entry)))
     })
     updateTextInput(session, "entry", value="")
   })
   
   output$chat <- renderUI({
+    if (length(vars$chat) > 500){
+      # Too long, use only the most recent 500 lines
+      vars$chat <- vars$chat[(length(vars$chat)-500):(length(vars$chat))]
+    }
+    saveRDS(vars$chat, "chat.Rds")
     HTML(vars$chat)
   })
 })
