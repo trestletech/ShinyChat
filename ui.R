@@ -2,7 +2,13 @@ library(shiny)
 
 shinyUI(
   bootstrapPage(
+    # We'll add some custom CSS styling -- totally optional
     includeCSS("shinychat.css"),
+    
+    # And custom JavaScript -- just to send a message when a user hits "enter".
+    # Totally optional.
+    includeScript("sendOnEnter.js"),
+    
     div(
       class = "container-fluid", 
       div(class = "row-fluid", 
@@ -13,8 +19,12 @@ shinyUI(
         mainPanel(
           uiOutput("chat"),
           fluidRow(
-            textInput("entry", ""),
-            actionButton("send", "Send")
+            div(class="span10",
+              textInput("entry", "")
+            ),
+            div(class="span2 center",
+                actionButton("send", "Send")
+            )
           )
         ),
         sidebarPanel(

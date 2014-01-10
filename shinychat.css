@@ -12,3 +12,13 @@
   font-weight: bold;
   color: #226;
 }
+
+#entry {
+  width: 100%;
+}
+
+.center {
+  text-align :center;
+  padding-top: 3px;
+}
+
