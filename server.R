@@ -27,26 +27,43 @@ shinyServer(function(input, output, session) {
   # When a session is ended, remove the user and note that they left the room. 
   session$onSessionEnded(function() {
     isolate({
-      vars$users <- vars$users[vars$users != session$user]
+      vars$users <- vars$users[vars$users != user()]
       vars$chat <- c(vars$chat, paste0(linePrefix(), "<span class=\"user-exit\">\"", 
-                                        sanitize(session$user),
+                                        sanitize(user()),
                                         "\" left the room.</span>"))
     })
   })
   
+  user <- reactive({
+    if (is.null(session$user)){
+      print("No username available. This application is intended to be hosted by Shiny Server Pro with required authentication.")
+      return(paste0("Anonymous", round(runif(1, 10000,99999))))
+    } else{
+      # Since we intend to offer a hosted version of this app, we may want to 
+      # censor emails.
+      username <- session$user
+      if (grepl(".*@.*\\..*", username)){
+        # Censor the second half of the username        
+        usernameLength <- str_locate(username, "@")[1,1] - 1
+        username <- paste0(str_sub(username, 0, floor(usernameLength/2)), 
+               paste(rep("*", ceiling(usernameLength/2)), collapse=""),
+               str_sub(username, usernameLength+1))
+      }
+      return(username)
+    }
+  })
+  
+  
   # Observer to handle changes to the username
   observe({
     isolate({
-      if (is.null(session$user)){
-        print("No username available. This application is intended to be hosted by Shiny Server Pro with required authentication.")
-      }
       vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"user-enter\">\"", 
-                                       sanitize(session$user),
+                                       sanitize(user()),
                                        "\" entered the room.</span>"))
     })    
     
     # Add this user to the global list of users
-    isolate(vars$users <- c(vars$users, session$user))
+    isolate(vars$users <- c(vars$users, user()))
   })
     
   # Keep the list of connected users updated
@@ -66,7 +83,7 @@ shinyServer(function(input, output, session) {
       # Add the current entry to the chat log.
       vars$chat <<- c(vars$chat, 
                       paste0(linePrefix(), "<span class=\"username\">",
-                             "<abbr title=\"", Sys.time(), "\">", session$user,
+                             "<abbr title=\"", Sys.time(), "\">", user(),
                              "</abbr></span>: ", sanitize(input$entry)))
     })
     # Clear out the text entry field.
