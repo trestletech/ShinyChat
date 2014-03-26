@@ -44,14 +44,11 @@ shinyUI(
         ),
         # The right sidebar
         sidebarPanel(
-          # Let the user define his/her own ID
-          textInput("user", "Your User ID:", value=""),
-          tags$hr(),
           h5("Connected Users"),
           # Create a spot for a dynamic UI containing the list of users.
           uiOutput("userList"),
           tags$hr(),
-          helpText(HTML("<p>Built using R & <a href = \"http://rstudio.com/shiny/\">Shiny</a>.<p>Source code available <a href =\"https://github.com/trestletech/ShinyChat\">on GitHub</a>."))
+          helpText(HTML("<p>Built using R & <a href = \"http://rstudio.com/shiny/\">Shiny</a>.<p>Source code available <a href =\"https://github.com/trestletech/ShinyChat/tree/auth\">on GitHub</a>."))
         )
       )
     )

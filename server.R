@@ -19,8 +19,6 @@ linePrefix <- function(){
 }
 
 shinyServer(function(input, output, session) {
-  # Create a spot for reactive variables specific to this particular session
-  sessionVars <- reactiveValues(username = "")
   
   # Track whether or not this session has been initialized. We'll use this to
   # assign a username to unininitialized sessions.
@@ -29,58 +27,28 @@ shinyServer(function(input, output, session) {
   # When a session is ended, remove the user and note that they left the room. 
   session$onSessionEnded(function() {
     isolate({
-      vars$users <- vars$users[vars$users != sessionVars$username]
+      vars$users <- vars$users[vars$users != session$user]
       vars$chat <- c(vars$chat, paste0(linePrefix(), "<span class=\"user-exit\">\"", 
-                                        sanitize(sessionVars$username),
+                                        sanitize(session$user),
                                         "\" left the room.</span>"))
     })
   })
   
   # Observer to handle changes to the username
   observe({
-    # We want a reactive dependency on this variable, so we'll just list it here.
-    input$user
+    isolate({
+      if (is.null(session$user)){
+        print("No username available. This application is intended to be hosted by Shiny Server Pro with required authentication.")
+      }
+      vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"user-enter\">\"", 
+                                       sanitize(session$user),
+                                       "\" entered the room.</span>"))
+    })    
     
-    if (!init){
-      # Seed initial username
-      sessionVars$username <- paste0("User", round(runif(1, 10000, 99999)))
-      isolate({
-        vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"user-enter\">\"", 
-                                         sanitize(sessionVars$username),
-                                         "\" entered the room.</span>"))
-      })
-      init <<- TRUE
-    } else{
-      # A previous username was already given
-      isolate({
-        if (input$user == sessionVars$username || input$user == ""){
-          # No change. Just return.
-          return()
-        }
-        
-        # Updating username      
-        # First, remove the old one
-        vars$users <- vars$users[vars$users != sessionVars$username]
-        
-        # Note the change in the chat log
-        vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"user-change\">\"", 
-                                          sanitize(sessionVars$username), 
-                                          "\" -> \"", sanitize(input$user), "\"</span>"))
-        
-        # Now update with the new one
-        sessionVars$username <- sanitize(input$user)
-      })
-    }
     # Add this user to the global list of users
-    isolate(vars$users <- c(vars$users, sessionVars$username))
+    isolate(vars$users <- c(vars$users, session$user))
   })
-  
-  # Keep the username updated with whatever sanitized/assigned username we have
-  observe({
-    updateTextInput(session, "user", 
-                    value=sessionVars$username)    
-  })
-  
+    
   # Keep the list of connected users updated
   output$userList <- renderUI({
     tagList(tags$ul( lapply(vars$users, function(user){
@@ -98,7 +66,7 @@ shinyServer(function(input, output, session) {
       # Add the current entry to the chat log.
       vars$chat <<- c(vars$chat, 
                       paste0(linePrefix(), "<span class=\"username\">",
-                             "<abbr title=\"", Sys.time(), "\">", sessionVars$username,
+                             "<abbr title=\"", Sys.time(), "\">", session$user,
                              "</abbr></span>: ", sanitize(input$entry)))
     })
     # Clear out the text entry field.
