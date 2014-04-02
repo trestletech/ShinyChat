@@ -2,7 +2,7 @@
   padding: .5em;
   border: 1px solid #777;
   height: 300px;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 .user-change, .user-exit, .user-enter {
