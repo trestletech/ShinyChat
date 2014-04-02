@@ -30,9 +30,10 @@ shinyServer(function(input, output, session) {
   session$onSessionEnded(function() {
     isolate({
       vars$users <- vars$users[vars$users != sessionVars$username]
-      vars$chat <- c(vars$chat, paste0(linePrefix(), "<span class=\"user-exit\">\"", 
-                                        sanitize(sessionVars$username),
-                                        "\" left the room.</span>"))
+      vars$chat <- c(vars$chat, paste0(linePrefix(),
+                     tags$span(class="user-exit",
+                       sessionVars$username,
+                       "left the room.")))
     })
   })
   
@@ -45,9 +46,10 @@ shinyServer(function(input, output, session) {
       # Seed initial username
       sessionVars$username <- paste0("User", round(runif(1, 10000, 99999)))
       isolate({
-        vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"user-enter\">\"", 
-                                         sanitize(sessionVars$username),
-                                         "\" entered the room.</span>"))
+        vars$chat <<- c(vars$chat, paste0(linePrefix(),
+                        tags$span(class="user-enter",
+                          sessionVars$username,
+                          "entered the room.")))
       })
       init <<- TRUE
     } else{
@@ -63,12 +65,14 @@ shinyServer(function(input, output, session) {
         vars$users <- vars$users[vars$users != sessionVars$username]
         
         # Note the change in the chat log
-        vars$chat <<- c(vars$chat, paste0(linePrefix(), "<span class=\"user-change\">\"", 
-                                          sanitize(sessionVars$username), 
-                                          "\" -> \"", sanitize(input$user), "\"</span>"))
+        vars$chat <<- c(vars$chat, paste0(linePrefix(),
+                        tags$span(class="user-change",
+                          paste0("\"", sessionVars$username, "\""),
+                          " -> ",
+                          paste0("\"", input$user, "\""))))
         
         # Now update with the new one
-        sessionVars$username <- sanitize(input$user)
+        sessionVars$username <- input$user
       })
     }
     # Add this user to the global list of users
@@ -97,9 +101,12 @@ shinyServer(function(input, output, session) {
     isolate({
       # Add the current entry to the chat log.
       vars$chat <<- c(vars$chat, 
-                      paste0(linePrefix(), "<span class=\"username\">",
-                             "<abbr title=\"", Sys.time(), "\">", sessionVars$username,
-                             "</abbr></span>: ", sanitize(input$entry)))
+                      paste0(linePrefix(),
+                        tags$span(class="username",
+                          tags$abbr(title=Sys.time(), sessionVars$username)
+                        ),
+                        ": ",
+                        tagList(input$entry)))
     })
     # Clear out the text entry field.
     updateTextInput(session, "entry", value="")
@@ -118,8 +125,3 @@ shinyServer(function(input, output, session) {
     HTML(vars$chat)
   })
 })
-
-# Replace any HTML tags in user-provided strings to prevent malicious entries.
-sanitize <- function(string){
-  str_replace_all(string, "[<>]", "")
-}
