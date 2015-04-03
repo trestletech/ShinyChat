@@ -7,6 +7,8 @@ vars <- reactiveValues(chat=NULL, users=NULL)
 # Restore the chat log from the last session.
 if (file.exists("chat.Rds")){
   vars$chat <- readRDS("chat.Rds")
+} else {
+  vars$chat <- "Welcome to Shiny Chat!"
 }
 
 #' Get the prefix for the line to be added to the chat window. Usually a newline
